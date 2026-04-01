@@ -1,0 +1,7 @@
+flask
+flask-login
+werkzeug
+gunicorn
+google-generativeai
+groq
+requests
