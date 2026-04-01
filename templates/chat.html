@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат — AI Bot</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="chat-page">
+    <div class="app-layout">
+
+        <!-- Сайдбар -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>🤖 AI Chat</h3>
+                <button class="btn-icon" onclick="newChat()"
+                        title="Новый чат">✚</button>
+            </div>
+
+            <div class="sidebar-conversations" id="convList">
+                {% for conv in conversations %}
+                <div class="conv-item" data-id="{{ conv.id }}"
+                     onclick="loadConversation({{ conv.id }})">
+                    <span class="conv-title">{{ conv.title }}</span>
+                    <button class="conv-delete"
+                            onclick="event.stopPropagation();
+                                     deleteConv({{ conv.id }})">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span>👤 {{ user.username }}</span>
+                    <a href="/logout" class="btn-logout">Выйти</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Оверлей для мобилок -->
+        <div class="sidebar-overlay" id="sidebarOverlay"
+             onclick="toggleSidebar()"></div>
+
+        <!-- Основная область -->
+        <main class="chat-main">
+            <div class="chat-topbar">
+                <button class="btn-icon sidebar-toggle"
+                        onclick="toggleSidebar()">☰</button>
+                <select id="modelSelect" class="model-selector">
+                    {% for key, model in models.items() %}
+                    <option value="{{ key }}">
+                        {{ model.icon }} {{ model.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message" id="welcome">
+                    <h2>👋 Привет, {{ user.username }}!</h2>
+                    <p>Выберите модель и начните общение</p>
+                    <div class="suggestions">
+                        <button class="suggestion"
+                                onclick="sendSuggestion(this)">
+                            Расскажи о себе
+                        </button>
+                        <button class="suggestion"
+                                onclick="sendSuggestion(this)">
+                            Помоги написать код
+                        </button>
+                        <button class="suggestion"
+                                onclick="sendSuggestion(this)">
+                            Объясни квантовую физику просто
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <textarea id="userInput"
+                              placeholder="Напишите сообщение..."
+                              rows="1"
+                              onkeydown="handleKey(event)"
+                              oninput="autoResize(this)"></textarea>
+                    <button id="sendBtn" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+                <p class="input-hint">
+                    Enter — отправить · Shift+Enter — новая строка
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/chat.js"></script>
+</body>
+</html>
