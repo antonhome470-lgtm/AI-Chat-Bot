@@ -192,3 +192,55 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
+# ============ ТЕСТ ============
+@app.route('/api/test')
+def api_test():
+    from ai_models import (
+        GEMINI_KEY, GROQ_KEY,
+        GEMINI_AVAILABLE, GROQ_AVAILABLE,
+        groq_client
+    )
+    
+    results = {
+        "db_path": DB_PATH,
+        "db_exists": os.path.exists(DB_PATH),
+        "gemini_key_exists": bool(GEMINI_KEY),
+        "gemini_key_preview": GEMINI_KEY[:10] + "..." if GEMINI_KEY else "EMPTY",
+        "gemini_lib": GEMINI_AVAILABLE,
+        "groq_key_exists": bool(GROQ_KEY),
+        "groq_key_preview": GROQ_KEY[:10] + "..." if GROQ_KEY else "EMPTY",
+        "groq_lib": GROQ_AVAILABLE,
+        "groq_client": groq_client is not None,
+    }
+
+    # Тест Gemini
+    if GEMINI_KEY and GEMINI_AVAILABLE:
+        try:
+            import google.generativeai as genai
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content("Say OK")
+            results["gemini_test"] = f"OK: {response.text[:50]}"
+        except Exception as e:
+            results["gemini_test"] = f"FAIL: {str(e)[:200]}"
+    else:
+        results["gemini_test"] = "SKIP: no key or lib"
+
+    # Тест Groq
+    if groq_client:
+        try:
+            response = groq_client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {"role": "user", "content": "Say OK"}
+                ],
+                max_tokens=10
+            )
+            reply = response.choices[0].message.content
+            results["groq_test"] = f"OK: {reply[:50]}"
+        except Exception as e:
+            results["groq_test"] = f"FAIL: {str(e)[:200]}"
+    else:
+        results["groq_test"] = "SKIP: no client"
+
+    return jsonify(results)
