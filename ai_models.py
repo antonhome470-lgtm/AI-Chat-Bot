@@ -4,8 +4,8 @@ from groq import Groq
 import requests
 
 # ============ КЛЮЧИ ============
-GEMINI_KEY = os.environ.get("GEMINI_KEY", "")
-GROQ_KEY = os.environ.get("GROQ_KEY", "")
+GEMINI_KEY = os.environ.get("GEMINI_KEY", "").strip().strip('"').strip("'")
+GROQ_KEY = os.environ.get("GROQ_KEY", "").strip().strip('"').strip("'")
 
 if GEMINI_KEY:
     genai.configure(api_key=GEMINI_KEY)
